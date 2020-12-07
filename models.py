@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 import datetime as dt
 import json
+import pdb
 
 # Create your models here.
 class Bitmap():
@@ -39,11 +40,26 @@ class EsignCreds(models.Model, Bitmap):
     def set_signers(self, signers):
         self.signers = json.dumps(signers)
 
+    def get_signers(self):
+        return json.loads(self.signers)
+
     def set_signers_role(self, signer_roles):
         self.signers_role = json.dumps(signer_roles)
 
+    def get_signers_role(self):
+        return json.loads(self.signers_role)
+
     def set_signers_status(self, signer_status):
         self.signers_status = json.dumps(signer_status)
+
+    def get_signers_status(self):
+        return json.loads(self.signers_status)
+    
+    def update_signer_status(self, email, status):
+        signer_status = self.get_signers_status()
+        index_update = self.get_signers().index(email)
+        signer_status[index_update] = status
+        self.set_signers_status(signer_status)
 
     def set_draft(self):
         self.setFlag(1)
@@ -53,3 +69,13 @@ class EsignCreds(models.Model, Bitmap):
 
     def check_draft(self):
         return self.isFlagValid(1)
+
+    def set_all_signed(self):
+        self.setFlag(2)
+
+    def reset_all_signed(self):
+        self.resetFlag(2)
+
+    def check_all_signed(self):
+        return self.isFlagValid(2)
+

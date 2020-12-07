@@ -15,11 +15,7 @@ from threading import Thread
 
 def hello_sign_process(request_body):
     if hasattr(hs_web_handle, request_body['event']['event_type']):
-        getattr(hs_web_handle, request_body['event']['event_type'])(request_body)
-    params = dict()
-    response = dict()
-    params['request_body'] = request_body
-    import_string(settings.HELLO_SIGN_WEBHOOK_PROCESS)(params, response)
+        getattr(hs_web_handle, request_body['event']['event_type'])(request_body, import_string(settings.HELLO_SIGN_WEBHOOK_PROCESS))
 
 @csrf_exempt
 @require_POST
