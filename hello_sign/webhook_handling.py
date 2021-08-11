@@ -85,3 +85,35 @@ def signature_request_all_signed(hello_sign_event, callback):
         params['signers'] = esign_obj.get_signers()
         params['signer_status'] = esign_obj.get_signers_status()
         callback(params)
+
+def signature_request_declined(hello_sign_event, callback):
+    service = "hellosign"
+    metadata = hello_sign_event['signature_request']['metadata']
+    esign_id = metadata['esign_id']
+    try:
+        esign_obj = EsignCreds.objects.get(unique_id=esign_id, service=service)
+    except EsignCreds.DoesNotExist:
+        pass
+    else:
+        esign_obj.delete()
+        params = dict()
+        params['service'] = "hellosign"
+        params['esign_id'] = esign_id
+        params['event'] = "signature_cancelled"
+        callback(params)
+
+def signature_request_canceled(hello_sign_event, callback):
+    service = "hellosign"
+    metadata = hello_sign_event['signature_request']['metadata']
+    esign_id = metadata['esign_id']
+    try:
+        esign_obj = EsignCreds.objects.get(unique_id=esign_id, service=service)
+    except EsignCreds.DoesNotExist:
+        pass
+    else:
+        esign_obj.delete()
+        params = dict()
+        params['service'] = "hellosign"
+        params['esign_id'] = esign_id
+        params['event'] = "signature_cancelled"
+        callback(params)
