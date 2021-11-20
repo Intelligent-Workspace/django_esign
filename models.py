@@ -25,6 +25,7 @@ class Bitmap():
 class EsignCreds(models.Model, Bitmap):
     unique_id = models.IntegerField()
     service = models.TextField()
+    service_document_id = models.TextField()
     creds = models.TextField()
     signers = models.TextField() #List of all signers
     signers_role = models.TextField() #List of all signer roles

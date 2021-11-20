@@ -127,7 +127,7 @@ def hello_sign_send_custom_signature_request(params, response):
         try:
             esign_obj = EsignCreds.objects.get(unique_id=esign_id, service=service)
         except EsignCreds.DoesNotExist:
-            esign_obj = EsignCreds(unique_id=esign_id, service=service)
+            esign_obj = EsignCreds(unique_id=esign_id, service=service, service_document_id=signature_request.signature_request_id)
             esign_obj.set_signers(l_signers)
             esign_obj.set_draft()
             esign_obj.save()
