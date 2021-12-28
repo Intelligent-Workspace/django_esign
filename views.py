@@ -15,6 +15,7 @@ from threading import Thread
 
 def hello_sign_process(request_body):
     if hasattr(hs_web_handle, request_body['event']['event_type']):
+        print(request_body['event']['event_type'])
         getattr(hs_web_handle, request_body['event']['event_type'])(request_body, import_string(settings.HELLO_SIGN_WEBHOOK_PROCESS))
 
 @csrf_exempt
@@ -25,9 +26,12 @@ def webhook_hellosign(request):
     response = dict()
     json_data = request.POST['json']
     request_body = json.loads(json_data)
+    print(request_body)
     if 'signature_request' in request_body:
         Thread(target=hello_sign_process, args=(request_body, )).start()
         print("Returing response")
+        return JsonResponse(data=context, status=200)
+    elif 'event' in request_body and 'event_type' in request_body['event'] and request_body['event']['event_type'] == "callback_test":
         return JsonResponse(data=context, status=200)
     else:
         return JsonResponse(data=context, status=500)

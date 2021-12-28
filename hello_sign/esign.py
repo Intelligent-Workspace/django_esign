@@ -127,7 +127,7 @@ def hello_sign_send_custom_signature_request(params, response):
         try:
             esign_obj = EsignCreds.objects.get(unique_id=esign_id, service=service)
         except EsignCreds.DoesNotExist:
-            esign_obj = EsignCreds(unique_id=esign_id, service=service)
+            esign_obj = EsignCreds(unique_id=esign_id, service=service, service_document_id=signature_request.signature_request_id)
             esign_obj.set_signers(l_signers)
             esign_obj.set_draft()
             esign_obj.save()
@@ -140,6 +140,24 @@ def hello_sign_send_custom_signature_request(params, response):
         response['error'] = "No file parameters."
         return False
 
+def hello_sign_cancel_signature_request(params, response):
+    esign_id = params['esign_id']
+    service = "hellosign"
+
+    try:
+        esign_obj = EsignCreds.objects.get(unique_id=esign_id, service=service)
+    except EsignCreds.DoesNotExist:
+        response['error'] = "This signature does not exist in sign request"
+        return False
+    else:
+        try:
+            test = client.cancel_signature_request(esign_obj.get_creds()["signature_request_id"])
+        except Exception:
+            response['error'] = "There seems to be something wrong with this cancel request"
+            return False
+        else:
+            return True
+
 def hello_sign_get_embed_url(params, response):
     esign_id = params['esign_id']
     email = params['email']
@@ -147,7 +165,7 @@ def hello_sign_get_embed_url(params, response):
 
     try:
         esign_obj = EsignCreds.objects.get(unique_id=esign_id, service=service)
-    except KeyError:
+    except EsignCreds.DoesNotExist:
         response['error'] = "This signature is not stored in db"
         return False
     else:
@@ -159,3 +177,30 @@ def hello_sign_get_embed_url(params, response):
         else:
             response['embed_url'] = client.get_embedded_object(signature_id).sign_url
             return True
+
+def hello_sign_get_current_file(params, response):
+    esign_id = params['esign_id']
+    service = "hellosign"
+
+    try:
+        esign_obj = EsignCreds.objects.get(unique_id=esign_id, service=service)
+    except EsignCreds.DoesNotExist:
+        response['error'] = "This signature is not stored in db"
+        return False
+    else:
+        response['file_url'] = client.get_signature_request_file(esign_obj.get_creds()["signature_request_id"], file_type="pdf", response_type="url")["file_url"]
+        return True
+
+def hello_sign_get_signers_status(params, response):
+    esign_id = params['esign_id']
+    service = "hellosign"
+
+    try:
+        esign_obj = EsignCreds.objects.get(unique_id=esign_id, service=service)
+    except EsignCreds.DoesNotExist:
+        response['error'] = "This signature is not stored in db"
+        return False
+    else:
+        response['emails'] = esign_obj.get_signers()
+        response['statuss'] = esign_obj.get_signers_status()
+        return True

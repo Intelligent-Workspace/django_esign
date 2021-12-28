@@ -7,15 +7,15 @@ import pdb
 # Create your models here.
 class Bitmap():
     #Methods
-    def setFlag(self, bit):
+    def set_flag(self, bit):
         self.flag = (self.flag | (0x01 << bit))
         return self.flag
 
-    def resetFlag(self, bit):
+    def reset_flag(self, bit):
         self.flag &= ~(0x01 << bit)
         return self.flag
 
-    def isFlagValid(self, bit):
+    def is_flag_valid(self, bit):
         flag = (self.flag & (0x01 << bit))
         if flag == 0:
             return False
@@ -25,6 +25,7 @@ class Bitmap():
 class EsignCreds(models.Model, Bitmap):
     unique_id = models.IntegerField()
     service = models.TextField()
+    service_document_id = models.TextField()
     creds = models.TextField()
     signers = models.TextField() #List of all signers
     signers_role = models.TextField() #List of all signer roles
@@ -62,20 +63,20 @@ class EsignCreds(models.Model, Bitmap):
         self.set_signers_status(signer_status)
 
     def set_draft(self):
-        self.setFlag(1)
+        self.set_flag(1)
 
     def reset_draft(self):
-        self.resetFlag(1)
+        self.reset_flag(1)
 
     def check_draft(self):
-        return self.isFlagValid(1)
+        return self.is_flag_valid(1)
 
     def set_all_signed(self):
-        self.setFlag(2)
+        self.set_flag(2)
 
     def reset_all_signed(self):
-        self.resetFlag(2)
+        self.reset_flag(2)
 
     def check_all_signed(self):
-        return self.isFlagValid(2)
+        return self.is_flag_valid(2)
 
